@@ -1,4 +1,4 @@
-name: Spotube Release Binary
+name: Sputtify Release Binary
 on:
   workflow_dispatch:
     inputs:
@@ -54,9 +54,9 @@ jobs:
       - name: Replace version in files
         run: |
           choco install sed make -y
-          sed -i "s/%{{SPOTUBE_VERSION}}%/${{ env.BUILD_VERSION }}/" windows/runner/Runner.rc
-          sed -i "s/%{{SPOTUBE_VERSION}}%/${{ env.BUILD_VERSION }}/" choco-struct/tools/VERIFICATION.txt
-          sed -i "s/%{{SPOTUBE_VERSION}}%/${{ env.BUILD_VERSION }}/" choco-struct/spotube.nuspec
+          sed -i "s/%{{Sputtify_VERSION}}%/${{ env.BUILD_VERSION }}/" windows/runner/Runner.rc
+          sed -i "s/%{{Sputtify_VERSION}}%/${{ env.BUILD_VERSION }}/" choco-struct/tools/VERIFICATION.txt
+          sed -i "s/%{{Sputtify_VERSION}}%/${{ env.BUILD_VERSION }}/" choco-struct/Sputtify.nuspec
 
       - name: Create Stable .env
         if: ${{ inputs.channel == 'stable' }}
@@ -77,15 +77,15 @@ jobs:
           dart pub global activate flutter_distributor
           make innoinstall
           flutter_distributor package --platform=windows --targets=exe --skip-clean
-          mv dist/**/spotube-*-windows-setup.exe dist/Spotube-windows-x86_64-setup.exe
+          mv dist/**/Sputtify-*-windows-setup.exe dist/Sputtify-windows-x86_64-setup.exe
 
       - name: Create Chocolatey Package and set hash
         if: ${{ inputs.channel == 'stable' }}
         run: |
-          Set-Variable -Name HASH -Value (Get-FileHash dist\Spotube-windows-x86_64-setup.exe).Hash
+          Set-Variable -Name HASH -Value (Get-FileHash dist\Sputtify-windows-x86_64-setup.exe).Hash
           sed -i "s/%{{WIN_SHA256}}%/$HASH/" choco-struct/tools/VERIFICATION.txt
           make choco
-          mv dist/spotube.*.nupkg dist/Spotube-windows-x86_64.nupkg
+          mv dist/Sputtify.*.nupkg dist/Sputtify-windows-x86_64.nupkg
 
       - name: Debug With SSH When fails
         if: ${{ failure() && inputs.debug && inputs.channel == 'nightly' }}
@@ -96,7 +96,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
           path: dist/
 
   linux:
@@ -146,7 +146,7 @@ jobs:
 
       - name: Replace Version in files
         run: |
-          sed -i 's|%{{APPDATA_RELEASE}}%|<release version="${{ env.BUILD_VERSION }}" date="${{ steps.date.outputs.date }}" />|' linux/com.github.KRTirtho.Spotube.appdata.xml
+          sed -i 's|%{{APPDATA_RELEASE}}%|<release version="${{ env.BUILD_VERSION }}" date="${{ steps.date.outputs.date }}" />|' linux/com.github.KRTirtho.Sputtify.appdata.xml
 
       - name: Generate Secrets
         run: |
@@ -172,10 +172,10 @@ jobs:
 
       - name: Move Files to dist
         run: |
-          mv build/spotube-linux-*-x86_64.tar.xz dist/
-          mv dist/**/spotube-*-linux.deb dist/Spotube-linux-x86_64.deb
-          mv dist/**/spotube-*-linux.rpm dist/Spotube-linux-x86_64.rpm
-          mv dist/**/spotube-*-linux.AppImage dist/Spotube-linux-x86_64.AppImage
+          mv build/Sputtify-linux-*-x86_64.tar.xz dist/
+          mv dist/**/Sputtify-*-linux.deb dist/Sputtify-linux-x86_64.deb
+          mv dist/**/Sputtify-*-linux.rpm dist/Sputtify-linux-x86_64.rpm
+          mv dist/**/Sputtify-*-linux.AppImage dist/Sputtify-linux-x86_64.AppImage
 
       - name: Debug With SSH When fails
         if: ${{ failure() && inputs.debug && inputs.channel == 'nightly' }}
@@ -185,7 +185,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
           path: dist/
 
   android:
@@ -236,7 +236,7 @@ jobs:
       - name: Build Apk
         run: |
           flutter build apk
-          mv build/app/outputs/apk/release/app-release.apk build/Spotube-android-all-arch.apk
+          mv build/app/outputs/apk/release/app-release.apk build/Sputtify-android-all-arch.apk
 
       - name: Debug With SSH When fails
         if: ${{ failure() && inputs.debug && inputs.channel == 'nightly' }}
@@ -246,9 +246,9 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
           path: |
-            build/Spotube-android-all-arch.apk
+            build/Sputtify-android-all-arch.apk
 
   macos:
     runs-on: macos-12
@@ -290,13 +290,13 @@ jobs:
         run: |
           flutter config --enable-macos-desktop
           flutter build macos
-          du -sh build/macos/Build/Products/Release/spotube.app
+          du -sh build/macos/Build/Products/Release/Sputtify.app
 
       - name: Package Macos App
         run: |
           npm install -g appdmg
           mkdir -p build/${{ env.BUILD_VERSION }}
-          appdmg appdmg.json build/Spotube-macos-x86_64.dmg
+          appdmg appdmg.json build/Sputtify-macos-x86_64.dmg
 
       - name: Debug With SSH When fails
         if: ${{ failure() && inputs.debug && inputs.channel == 'nightly' }}
@@ -306,9 +306,9 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
           path: |
-            build/Spotube-macos-x86_64.dmg
+            build/Sputtify-macos-x86_64.dmg
 
   upload:
     runs-on: ubuntu-latest
@@ -320,8 +320,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: Spotube-Release-Binaries
-          path: ./Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
+          path: ./Sputtify-Release-Binaries
 
       - name: Install dependencies
         run: sudo apt-get install tree -y
@@ -329,13 +329,13 @@ jobs:
       - name: Generate Checksums
         run: |
           tree .
-          md5sum Spotube-Release-Binaries/* >> RELEASE.md5sum
-          sha256sum Spotube-Release-Binaries/* >> RELEASE.sha256sum
-          sed -i 's|Spotube-Release-Binaries/||' RELEASE.sha256sum RELEASE.md5sum
+          md5sum Sputtify-Release-Binaries/* >> RELEASE.md5sum
+          sha256sum Sputtify-Release-Binaries/* >> RELEASE.sha256sum
+          sed -i 's|Sputtify-Release-Binaries/||' RELEASE.sha256sum RELEASE.md5sum
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Spotube-Release-Binaries
+          name: Sputtify-Release-Binaries
           path: |
             RELEASE.md5sum
             RELEASE.sha256sum
@@ -350,7 +350,7 @@ jobs:
           omitNameDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           allowUpdates: true
-          artifacts: Spotube-Release-Binaries/*,RELEASE.sha256sum,RELEASE.md5sum
+          artifacts: Sputtify-Release-Binaries/*,RELEASE.sha256sum,RELEASE.md5sum
 
       - name: Upload Release Binaries (nightly)
         if: ${{ !inputs.dry_run && inputs.channel == 'nightly' }}
@@ -362,4 +362,4 @@ jobs:
           omitNameDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           allowUpdates: true
-          artifacts: Spotube-Release-Binaries/*,RELEASE.sha256sum,RELEASE.md5sum
+          artifacts: Sputtify-Release-Binaries/*,RELEASE.sha256sum,RELEASE.md5sum
